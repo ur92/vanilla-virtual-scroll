@@ -1,0 +1,28 @@
+.list{
+    list-style: none;
+    height: 500px;
+    width: 500px;
+    overflow: auto;
+    border: 2px lightblue solid;
+    border-radius: 4px;
+    padding: 0;
+}
+.list-item{
+    display: flex;
+    border-top: lightgray 1px solid;
+    box-sizing: border-box;
+    height: 50px;
+}
+.list-item > img {
+    display: inline-block;
+    height: 50px;
+}
+.list-item > p {
+    display: inline-block;
+    margin-left: 20px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 400px;
+}
+

@@ -1,0 +1,7 @@
+{
+  "name": "vanilla-virtual-scroll",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Evgeni Dikerman <evgenid@jfrog.com>",
+  "license": "MIT"
+}
