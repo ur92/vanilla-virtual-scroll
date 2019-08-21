@@ -5,6 +5,8 @@ export default class VirtualScroll {
     _data = [];
     _scrollOffset = 0;
     _itemHeight = 50;
+    _itemsToRender= 11;
+    updateInProgress = false;
 
     constructor(rootEl) {
         this.rootEl = rootEl;
@@ -16,8 +18,8 @@ export default class VirtualScroll {
     }
 
     get data() {
-        const start = this.scrollOffset / this._itemHeight;
-        const end = this.scrollOffset / this._itemHeight + 10;
+        const start = parseInt(this.scrollOffset / this._itemHeight);
+        const end = parseInt(this.scrollOffset / this._itemHeight + this._itemsToRender);
         return this._data.slice(start, end);
     }
 
@@ -40,10 +42,18 @@ export default class VirtualScroll {
         const listItemsEls = this.data.map((dataItem,idx)=> this.createListItemEl(dataItem));
         listEl.append(...listItemsEls);
         listEl.classList.add('list');
-        listEl.addEventListener('scroll', ()=>{
-            this.scrollOffset = listEl.scrollTop;
-        });
+        const onScrollEvent = this.onScrollEvent.bind(this);
+        listEl.addEventListener('scroll', onScrollEvent);
         return listEl;
+    }
+
+    onScrollEvent(){
+        if(this.updateInProgress) return;
+        this.updateInProgress =true;
+        window.requestAnimationFrame(()=> {
+            this.scrollOffset = this.listEl.scrollTop;
+            this.updateInProgress =false;
+        });
     }
 
     createListItemEl(dataItem){
@@ -63,15 +73,51 @@ export default class VirtualScroll {
 
     updateListEl(){
         const firstDataId = this.data[0].id;
-        const lastDataId = this.data[9].id;
-        const firstListId = this.listEl.children[0].id;
-        const lastListId = this.listEl.children[1].id;
+        const lastDataId = this.data[this._itemsToRender-1].id;
+        const firstListId = parseInt(this.listEl.children[0].id);
+        const lastListId = parseInt(this.listEl.children[this._itemsToRender-1].id);
 
-        const idsToAdd = idsToPresent.filter(idx=> {
-            return this.listEl.children.namedItem(idx)
+        if(firstDataId===firstListId) return;
+
+        let dataItemsToAdd = [];
+        let idsToRemove = [];
+
+        const isScrollDown = lastDataId > lastListId;
+
+        if(isScrollDown){
+            dataItemsToAdd = this.data.slice(this.data.findIndex(item=>item.id===lastListId)+1);
+            if(!dataItemsToAdd) return;
+            idsToRemove = [...this.listEl.children]
+                .slice(0,dataItemsToAdd.length)
+                .map(elem=>elem.id);
+        }
+        else{
+            dataItemsToAdd = this.data.slice(0,this.data.findIndex(item=>item.id===firstListId));
+            if(!dataItemsToAdd) return;
+            idsToRemove = [...this.listEl.children]
+                .slice(this._itemsToRender-dataItemsToAdd.length)
+                .map(elem=>elem.id);
+        }
+        this.addItemsToList(dataItemsToAdd, isScrollDown);
+        this.removeItemsFromList(idsToRemove);
+        this.updateInProgress = false;
+    }
+
+    addItemsToList(dataItemsToAdd, isScrollDown){
+        const listItemsElToAdd = dataItemsToAdd.map(dataItem=>{
+            return this.createListItemEl(dataItem);
         });
-        const idsToRemove = idsToPresent.filter(idx=> {
-            return this.listEl.children.namedItem(idx)
+        if(isScrollDown) {
+            this.listEl.append(...listItemsElToAdd);
+        }
+        else{
+            this.listEl.prepend(...listItemsElToAdd);
+        }
+    }
+
+    removeItemsFromList(idsToRemove){
+        idsToRemove.forEach(id=>{
+            this.listEl.removeChild(this.listEl.children.namedItem(id));
         });
     }
 }
