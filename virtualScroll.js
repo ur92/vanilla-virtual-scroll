@@ -5,6 +5,7 @@ export default class VirtualScroll {
     fakeScrollEl = null;
     _data = [];
     _scrollOffset = 0;
+    _currentRange= {start:0, end:0};
     _itemHeight = 50;
     _itemsToRender= 11;
     updateInProgress = false;
@@ -19,15 +20,16 @@ export default class VirtualScroll {
     }
 
     get data() {
-        const start = parseInt(this.scrollOffset / this._itemHeight);
-        const end = parseInt(this.scrollOffset / this._itemHeight + this._itemsToRender);
-        return this._data.slice(start, end);
+
+        return this._data;
     }
 
     set scrollOffset(val) {
         this._scrollOffset = val;
+        const {start,end} = this.calculateRange(val);
+        this.updateListEl(start, end);
+        this._currentRange = {start,end};
         this.applyScrollOffsetToListEl(this.scrollOffset - val%this._itemHeight);
-        this.updateListEl();
     }
 
     get scrollOffset() {
@@ -35,17 +37,16 @@ export default class VirtualScroll {
     }
 
     render() {
-        this.listEl = this.createListEl(this.data);
+        const {start,end} =this._currentRange = this.calculateRange(0);
+        this.listEl = this.createListEl(this.data.slice(start,end));
         this.fakeScrollEl = this.createFakeScrollEl(this._data);
-        const onScrollEvent = this.onScrollEvent.bind(this);
-        this.rootEl.addEventListener('scroll', onScrollEvent);
-
+        this.rootEl.addEventListener('scroll', this.onScrollEvent.bind(this));
         this.rootEl.append( this.fakeScrollEl, this.listEl);
     }
 
-    createListEl() {
+    createListEl(data) {
         const listEl = h('ul');
-        const listItemsEls = this.data.map((dataItem,idx)=> this.createListItemEl(dataItem));
+        const listItemsEls = data.map((dataItem,idx)=> this.createListItemEl(dataItem));
         listEl.append(...listItemsEls);
         listEl.classList.add('list');
         return listEl;
@@ -82,36 +83,26 @@ export default class VirtualScroll {
         return fakeScrollEl;
     }
 
-    updateListEl(){
-        const firstDataId = this.data[0].id;
-        const lastDataId = this.data[this._itemsToRender-1].id;
-        const firstListId = parseInt(this.listEl.children[0].id);
-        const lastListId = parseInt(this.listEl.children[this._itemsToRender-1].id);
+    updateListEl(start, end){
+        const {start:currentStart, end:currentEnd} = this._currentRange;
 
-        if(firstDataId===firstListId) return;
+        if(start===currentStart) return;
 
         let dataItemsToAdd = [];
-        let idsToRemove = [];
+        let itemsToRemove = [];
 
-        const isScrollDown = lastDataId > lastListId;
+        const isScrollDown = start > currentStart;
 
         if(isScrollDown){
-            dataItemsToAdd = this.data.slice(this.data.findIndex(item=>item.id===lastListId)+1);
-            if(!dataItemsToAdd) return;
-            idsToRemove = [...this.listEl.children]
-                .slice(0,dataItemsToAdd.length)
-                .map(elem=>elem.id);
+            dataItemsToAdd = this.data.slice(currentEnd, end);
+            itemsToRemove = this.data.slice(currentStart, start);
         }
         else{
-            dataItemsToAdd = this.data.slice(0,this.data.findIndex(item=>item.id===firstListId));
-            if(!dataItemsToAdd) return;
-            idsToRemove = [...this.listEl.children]
-                .slice(this._itemsToRender-dataItemsToAdd.length)
-                .map(elem=>elem.id);
+            dataItemsToAdd = this.data.slice(start, currentStart);
+            itemsToRemove = this.data.slice(end, currentEnd);
         }
         this.addItemsToList(dataItemsToAdd, isScrollDown);
-        this.removeItemsFromList(idsToRemove);
-        this.updateInProgress = false;
+        this.removeItemsFromList(itemsToRemove);
     }
 
     addItemsToList(dataItemsToAdd, isScrollDown){
@@ -126,14 +117,20 @@ export default class VirtualScroll {
         }
     }
 
-    removeItemsFromList(idsToRemove){
-        idsToRemove.forEach(id=>{
-            this.listEl.removeChild(this.listEl.children.namedItem(id));
+    removeItemsFromList(itemsToRemove){
+        itemsToRemove.forEach(item=>{
+            this.listEl.removeChild(this.listEl.children.namedItem(item.id));
         });
     }
 
     applyScrollOffsetToListEl(scrollOffset) {
         this.listEl.style.marginTop = `${scrollOffset}px`;
+    }
+
+    calculateRange(scrollOffset) {
+        const start = parseInt(scrollOffset / this._itemHeight);
+        const end = parseInt(scrollOffset / this._itemHeight + this._itemsToRender);
+        return {start, end};
     }
 }
 
