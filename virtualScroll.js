@@ -1,4 +1,4 @@
-const h = (strings)=> document.createElement(strings[0]);
+const h = ([elementTag])=> document.createElement(elementTag);
 export default class VirtualScroll {
     rootEl = null;
     listEl = null;
