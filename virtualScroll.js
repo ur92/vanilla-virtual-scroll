@@ -26,7 +26,7 @@ export default class VirtualScroll {
 
     set scrollOffset(val) {
         this._scrollOffset = val;
-        this.applyScrollOffsetToListEl(val%this._itemHeight);
+        this.applyScrollOffsetToListEl(this.scrollOffset - val%this._itemHeight);
         this.updateListEl();
     }
 
@@ -133,7 +133,7 @@ export default class VirtualScroll {
     }
 
     applyScrollOffsetToListEl(scrollOffset) {
-        this.listEl.style.marginTop = `-${scrollOffset}px`;
+        this.listEl.style.marginTop = `${scrollOffset}px`;
     }
 }
 
