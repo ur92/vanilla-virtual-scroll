@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "main": "main.js",
   "author": "Evgeni Dikerman <evgenid@jfrog.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "reload": "^3.0.1"
+  },
+  "scripts": {
+    "start": "reload -b"
+  }
 }

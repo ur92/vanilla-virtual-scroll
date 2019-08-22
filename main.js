@@ -1,7 +1,7 @@
 import VirtualScroll from './virtualScroll.js';
 
 const fetchData = async () => {
-    return await fetch('/data.json')
+    return await fetch('https://jsonplaceholder.typicode.com/photos')
         .then(response => response.json());
 };
 
