@@ -1,4 +1,4 @@
-const h = document.createElement.bind(document);
+const h = (strings)=> document.createElement(strings[0]);
 export default class VirtualScroll {
     rootEl = null;
     listEl = null;
@@ -36,7 +36,7 @@ export default class VirtualScroll {
     }
 
     createListEl(data) {
-        const listEl = h('ul');
+        const listEl = h`ul`;
         const listItemsEls = data.map((dataItem, idx) => this.createListItemEl(dataItem));
         listEl.append(...listItemsEls);
         listEl.classList.add('list');
@@ -53,13 +53,13 @@ export default class VirtualScroll {
     }
 
     createListItemEl(dataItem) {
-        const imgEl = h('img');
+        const imgEl = h`img`;
         imgEl.src = dataItem.thumbnailUrl;
 
-        const descriptionEl = h('p');
+        const descriptionEl = h`p`;
         descriptionEl.innerText = dataItem.title;
 
-        const listItemEl = h('li');
+        const listItemEl = h`li`;
         listItemEl.id = dataItem.id;
         listItemEl.append(imgEl, descriptionEl);
         listItemEl.classList.add('list-item');
@@ -68,7 +68,7 @@ export default class VirtualScroll {
     }
 
     createFakeScrollEl(data) {
-        const fakeScrollEl = h('div');
+        const fakeScrollEl = h`div`;
         fakeScrollEl.classList.add('fake-scroll');
         fakeScrollEl.style.height = `${this._itemHeight * data.length}px`;
         return fakeScrollEl;
