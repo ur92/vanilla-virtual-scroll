@@ -9,6 +9,6 @@ const main = async (elSelector) => {
     const elem = document.querySelector(elSelector);
     const vs = new VirtualScroll(elem);
     const data = await fetchData();
-    vs.data = data;
+    vs.render(data);
 };
 export default main;

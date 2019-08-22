@@ -3,7 +3,7 @@ export default class VirtualScroll {
     rootEl = null;
     listEl = null;
     fakeScrollEl = null;
-    _data = [];
+    data = [];
     _scrollOffset = 0;
     _currentRange= {start:0, end:0};
     _itemHeight = 50;
@@ -14,29 +14,20 @@ export default class VirtualScroll {
         this.rootEl = rootEl;
     }
 
-    set data(val) {
-        this._data = val;
-        this.render();
-    }
-
-    get data() {
-
-        return this._data;
-    }
-
     set scrollOffset(val) {
         this._scrollOffset = val;
         const {start,end} = this.calculateRange(val);
         this.updateListEl(start, end);
         this._currentRange = {start,end};
-        this.applyScrollOffsetToListEl(this.scrollOffset - val%this._itemHeight);
+        this.listEl.style.marginTop = `${this.scrollOffset - val%this._itemHeight}px`;
     }
 
     get scrollOffset() {
         return this._scrollOffset;
     }
 
-    render() {
+    render(data) {
+        this.data= data;
         const {start,end} =this._currentRange = this.calculateRange(0);
         this.listEl = this.createListEl(this.data.slice(start,end));
         this.fakeScrollEl = this.createFakeScrollEl(this._data);
@@ -121,10 +112,6 @@ export default class VirtualScroll {
         itemsToRemove.forEach(item=>{
             this.listEl.removeChild(this.listEl.children.namedItem(item.id));
         });
-    }
-
-    applyScrollOffsetToListEl(scrollOffset) {
-        this.listEl.style.marginTop = `${scrollOffset}px`;
     }
 
     calculateRange(scrollOffset) {
