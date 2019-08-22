@@ -1,7 +1,8 @@
 const h = document.createElement.bind(document);
 export default class VirtualScroll {
     rootEl = null;
-    listEl = null
+    listEl = null;
+    fakeScrollEl = null;
     _data = [];
     _scrollOffset = 0;
     _itemHeight = 50;
@@ -25,6 +26,7 @@ export default class VirtualScroll {
 
     set scrollOffset(val) {
         this._scrollOffset = val;
+        this.applyScrollOffsetToListEl(val%this._itemHeight);
         this.updateListEl();
     }
 
@@ -34,7 +36,11 @@ export default class VirtualScroll {
 
     render() {
         this.listEl = this.createListEl(this.data);
-        this.rootEl.appendChild(this.listEl);
+        this.fakeScrollEl = this.createFakeScrollEl(this._data);
+        const onScrollEvent = this.onScrollEvent.bind(this);
+        this.rootEl.addEventListener('scroll', onScrollEvent);
+
+        this.rootEl.append( this.fakeScrollEl, this.listEl);
     }
 
     createListEl() {
@@ -42,8 +48,6 @@ export default class VirtualScroll {
         const listItemsEls = this.data.map((dataItem,idx)=> this.createListItemEl(dataItem));
         listEl.append(...listItemsEls);
         listEl.classList.add('list');
-        const onScrollEvent = this.onScrollEvent.bind(this);
-        listEl.addEventListener('scroll', onScrollEvent);
         return listEl;
     }
 
@@ -51,7 +55,7 @@ export default class VirtualScroll {
         if(this.updateInProgress) return;
         this.updateInProgress =true;
         window.requestAnimationFrame(()=> {
-            this.scrollOffset = this.listEl.scrollTop;
+            this.scrollOffset = this.rootEl.scrollTop;
             this.updateInProgress =false;
         });
     }
@@ -69,6 +73,13 @@ export default class VirtualScroll {
         listItemEl.classList.add('list-item');
 
         return listItemEl;
+    }
+
+    createFakeScrollEl(data) {
+        const fakeScrollEl = h('div');
+        fakeScrollEl.classList.add('fake-scroll');
+        fakeScrollEl.style.height = `${this._itemHeight*data.length}px`;
+        return fakeScrollEl;
     }
 
     updateListEl(){
@@ -119,6 +130,10 @@ export default class VirtualScroll {
         idsToRemove.forEach(id=>{
             this.listEl.removeChild(this.listEl.children.namedItem(id));
         });
+    }
+
+    applyScrollOffsetToListEl(scrollOffset) {
+        this.listEl.style.marginTop = `-${scrollOffset}px`;
     }
 }
 
