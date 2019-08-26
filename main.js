@@ -5,10 +5,10 @@ const fetchData = async () => {
         .then(response => response.json());
 };
 
-const main = async (elSelector) => {
+const mountVirtualScroll = async (elSelector) => {
     const elem = document.querySelector(elSelector);
     const vs = new VirtualScroll(elem);
     const data = await fetchData();
     vs.render(data);
 };
-export default main;
+export default mountVirtualScroll;
