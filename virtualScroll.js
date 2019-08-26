@@ -25,8 +25,11 @@ export default class VirtualScroll {
         window.requestAnimationFrame(() => {
             const scrollOffset = this.rootEl.scrollTop;
             const {start, end} = this.calculateRange(scrollOffset);
-            this.updateListEl(start, end);
-            this._currentRange = {start, end};
+            const {start: currentStart, end: currentEnd} = this._currentRange;
+            if(start!== currentStart) {
+                this.updateListEl(start, end, currentStart, currentEnd);
+                this._currentRange = {start, end};
+            }
             this.listEl.style.marginTop = `${this._itemHeight * start}px`;
         });
     }
@@ -61,11 +64,7 @@ export default class VirtualScroll {
         return fakeScrollEl;
     }
 
-    updateListEl(start, end) {
-        const {start: currentStart, end: currentEnd} = this._currentRange;
-
-        if (start === currentStart) return;
-
+    updateListEl(start, end, currentStart, currentEnd) {
         let dataItemsToAdd = [];
         let itemsToRemove = [];
 
