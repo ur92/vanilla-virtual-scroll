@@ -1,38 +1,34 @@
-const h = ([elementTag])=> document.createElement(elementTag);
+const h = ([elementTag]) => document.createElement(elementTag);
 export default class VirtualScroll {
-    rootEl = null;
-    listEl = null;
-    fakeScrollEl = null;
-    data = [];
-    _scrollOffset = 0;
     _currentRange = {start: 0, end: 0};
     _itemHeight = 50;
     _itemsToRender = 11;
-    updateInProgress = false;
+    rootEl = null;
+    listEl = null;
+    data = [];
 
     constructor(rootEl) {
         this.rootEl = rootEl;
-    }
-
-    set scrollOffset(val) {
-        this._scrollOffset = val;
-        const {start, end} = this.calculateRange(val);
-        this.updateListEl(start, end);
-        this._currentRange = {start, end};
-        this.listEl.style.marginTop = `${this.scrollOffset - val % this._itemHeight}px`;
-    }
-
-    get scrollOffset() {
-        return this._scrollOffset;
     }
 
     render(data) {
         this.data = data;
         const {start, end} = this._currentRange = this.calculateRange(0);
         this.listEl = this.createListEl(data.slice(start, end));
-        this.fakeScrollEl = this.createFakeScrollEl(data);
-        this.rootEl.addEventListener('scroll', this.onScrollEvent.bind(this));
-        this.rootEl.append(this.fakeScrollEl, this.listEl);
+        const fakeScrollEl = this.createFakeScrollEl(data);
+        const onScrollUpdate = this.update.bind(this);
+        this.rootEl.addEventListener('scroll', onScrollUpdate);
+        this.rootEl.append(fakeScrollEl, this.listEl);
+    }
+
+    update() {
+        window.requestAnimationFrame(() => {
+            const scrollOffset = this.rootEl.scrollTop;
+            const {start, end} = this.calculateRange(scrollOffset);
+            this.updateListEl(start, end);
+            this._currentRange = {start, end};
+            this.listEl.style.marginTop = `${this._itemHeight * start}px`;
+        });
     }
 
     createListEl(data) {
@@ -41,15 +37,6 @@ export default class VirtualScroll {
         listEl.append(...listItemsEls);
         listEl.classList.add('list');
         return listEl;
-    }
-
-    onScrollEvent() {
-        if (this.updateInProgress) return;
-        this.updateInProgress = true;
-        window.requestAnimationFrame(() => {
-            this.scrollOffset = this.rootEl.scrollTop;
-            this.updateInProgress = false;
-        });
     }
 
     createListItemEl(dataItem) {
