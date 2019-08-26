@@ -1,2 +1,2 @@
-# vanilla-virtual-scroll
+# vvs
 clone this repo and run `npm i && npm start`
