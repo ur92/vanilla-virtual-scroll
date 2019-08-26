@@ -1,8 +1,8 @@
 const h = ([elementTag]) => document.createElement(elementTag);
 export default class VirtualScroll {
-    _currentRange = {start: 0, end: 0};
-    _itemHeight = 50;
-    _itemsToRender = 11;
+    ITEMS_TO_RENDER = 11;
+    ITEM_HEIGHT = 50;
+    currentRange = {start: 0, end: 0};
     rootEl = null;
     listEl = null;
     data = [];
@@ -13,7 +13,7 @@ export default class VirtualScroll {
 
     render(data) {
         this.data = data;
-        const {start, end} = this._currentRange = this.calculateRange(0);
+        const {start, end} = this.currentRange = this.calculateRange(0);
         this.listEl = this.createListEl(data.slice(start, end));
         const fakeScrollEl = this.createFakeScrollEl(data);
         const onScrollUpdate = this.update.bind(this);
@@ -25,12 +25,12 @@ export default class VirtualScroll {
         window.requestAnimationFrame(() => {
             const scrollOffset = this.rootEl.scrollTop;
             const {start, end} = this.calculateRange(scrollOffset);
-            const {start: currentStart, end: currentEnd} = this._currentRange;
+            const {start: currentStart, end: currentEnd} = this.currentRange;
             if(start!== currentStart) {
                 this.updateListEl(start, end, currentStart, currentEnd);
-                this._currentRange = {start, end};
+                this.currentRange = {start, end};
             }
-            this.listEl.style.marginTop = `${this._itemHeight * start}px`;
+            this.listEl.style.marginTop = `${this.ITEM_HEIGHT * start}px`;
         });
     }
 
@@ -60,7 +60,7 @@ export default class VirtualScroll {
     createFakeScrollEl(data) {
         const fakeScrollEl = h`div`;
         fakeScrollEl.classList.add('fake-scroll');
-        fakeScrollEl.style.height = `${this._itemHeight * data.length}px`;
+        fakeScrollEl.style.height = `${this.ITEM_HEIGHT * data.length}px`;
         return fakeScrollEl;
     }
 
@@ -99,8 +99,8 @@ export default class VirtualScroll {
     }
 
     calculateRange(scrollOffset) {
-        const start = parseInt(scrollOffset / this._itemHeight);
-        const end = parseInt(scrollOffset / this._itemHeight + this._itemsToRender);
+        const start = parseInt(scrollOffset / this.ITEM_HEIGHT);
+        const end = parseInt(scrollOffset / this.ITEM_HEIGHT + this.ITEMS_TO_RENDER);
         return {start, end};
     }
 }
