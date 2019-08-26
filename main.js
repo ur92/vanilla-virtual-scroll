@@ -15,4 +15,5 @@ const initVirtualScroll = async (elSelector) => {
         console.error('data fetch failed, msg: ', e.message);
     }
 };
-export default initVirtualScroll;
+
+initVirtualScroll('.virtual-scroll')
