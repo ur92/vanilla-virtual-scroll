@@ -6,9 +6,13 @@ const fetchData = async () => {
 };
 
 const initVirtualScroll = async (elSelector) => {
-    const elem = document.querySelector(elSelector);
-    const vs = new VirtualScroll(elem);
-    const data = await fetchData();
-    vs.render(data);
+    try {
+        const elem = document.querySelector(elSelector);
+        const vs = new VirtualScroll(elem);
+        const data = await fetchData();
+        vs.render(data);
+    } catch (e) {
+        console.error('data fetch failed, msg: ', e.message);
+    }
 };
 export default initVirtualScroll;
