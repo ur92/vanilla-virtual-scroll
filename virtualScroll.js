@@ -2,20 +2,27 @@ const h = ([elementTag]) => document.createElement(elementTag);
 export default class VirtualScroll {
     ITEMS_TO_RENDER = 11;
     ITEM_HEIGHT = 50;
+    _data = [];
     currentRange = {start: 0, end: 0};
     rootEl = null;
     listEl = null;
-    data = [];
 
     constructor(rootEl) {
         this.rootEl = rootEl;
     }
 
-    render(data) {
-        this.data = data;
+    set data(val){
+        this._data = val;
+        this.render();
+    }
+    get data(){
+        return this._data;
+    }
+
+    render() {
         const {start, end} = this.currentRange = this.calculateRange(0);
-        this.listEl = this.createListEl(data.slice(start, end));
-        const fakeScrollEl = this.createFakeScrollEl(data);
+        this.listEl = this.createListEl(this.data.slice(start, end));
+        const fakeScrollEl = this.createFakeScrollEl(this.data);
         const onScrollUpdate = this.update.bind(this);
         this.rootEl.addEventListener('scroll', onScrollUpdate);
         this.rootEl.append(fakeScrollEl, this.listEl);

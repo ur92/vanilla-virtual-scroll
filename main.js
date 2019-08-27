@@ -1,7 +1,7 @@
 import VirtualScroll from './virtualScroll.js';
 
 const fetchData = async () => {
-    return await fetch('https://jsonplaceholder.typicode.com/photos')
+    return await fetch('/data.json')
         .then(response => response.json());
 };
 
@@ -9,8 +9,7 @@ const initVirtualScroll = async (elSelector) => {
     try {
         const elem = document.querySelector(elSelector);
         const vs = new VirtualScroll(elem);
-        const data = await fetchData();
-        vs.render(data);
+        vs.data = await fetchData();
     } catch (e) {
         console.error('data fetch failed, msg: ', e.message);
     }
