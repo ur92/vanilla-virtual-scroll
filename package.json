@@ -7,6 +7,12 @@
   "dependencies": {
     "reload": "^3.0.1"
   },
+  "score": {
+    "cleanCode": 2,
+    "workingBySpec": 5,
+    "performance": 2,
+    "bonus": 1
+  },
   "scripts": {
     "start": "reload -b"
   }
