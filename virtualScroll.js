@@ -29,7 +29,7 @@ export default class VirtualScroll {
     }
 
     update() {
-        window.requestAnimationFrame(() => {
+         window.requestAnimationFrame(() => {
             const scrollOffset = this.rootEl.scrollTop;
             const {start, end} = this.calculateRange(scrollOffset);
             const {start: currentStart, end: currentEnd} = this.currentRange;
@@ -37,8 +37,8 @@ export default class VirtualScroll {
                 this.updateListEl(start, end, currentStart, currentEnd);
                 this.currentRange = {start, end};
             }
-            this.listEl.style.marginTop = `${this.ITEM_HEIGHT * start}px`;
-        });
+            this.listEl.style.transform = `translateY(${this.ITEM_HEIGHT * start}px)`;
+         });
     }
 
     createListEl(data) {

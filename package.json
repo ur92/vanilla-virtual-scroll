@@ -5,7 +5,7 @@
   "author": "Evgeni Dikerman <evgenid@jfrog.com>",
   "license": "MIT",
   "dependencies": {
-    "reload": "^3.0.1"
+    "reload": "^3.2.0"
   },
   "score": {
     "cleanCode": 2,
